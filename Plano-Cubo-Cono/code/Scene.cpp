@@ -7,11 +7,10 @@
 #include "Scene.hpp"
 
 #include <iostream>
-#include <cassert>
 
-#include <glm.hpp>                          // vec3, vec4, ivec4, mat4
-#include <gtc/matrix_transform.hpp>         // translate, rotate, scale, perspective
-#include <gtc/type_ptr.hpp>                 // value_ptr
+#include <glm/glm.hpp>                          // vec3, vec4, ivec4, mat4
+#include <glm/gtc/matrix_transform.hpp>         // translate, rotate, scale, perspective
+#include <glm/gtc/type_ptr.hpp>                 // value_ptr
 
 namespace SDLTapia
 {
@@ -48,15 +47,13 @@ namespace SDLTapia
         "    fragment_color = vec4(front_color, 1.0);"
         "}";
 
-    Scene::Scene(unsigned width, unsigned height)
-        :
-        angle(0)
+    Scene::Scene(unsigned width, unsigned height):angle(0)
     {
         // Se establece la configuración básica:
 
         glEnable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
-        glClearColor(.1f, .1f, .1f, 1.f);
+        glClearColor(.2f, .2f, .2f, 1.f);
 
         // Se compilan y se activan los shaders:
 
@@ -72,25 +69,36 @@ namespace SDLTapia
 
     void Scene::update()
     {
-        angle += 0.01f;
     }
 
     void Scene::render()
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Se rota el cubo y se empuja hacia el fondo:
+        // Renderizar el plano (suelo)
+        glm::mat4 model_view_matrix_1(1.0f); // Matriz identidad
+        model_view_matrix_1 = glm::translate(model_view_matrix_1, glm::vec3(-4.f, -1.f, -2.f)); // Posición del plano
+        model_view_matrix_1 = glm::rotate(model_view_matrix_1, glm::radians(-45.f), glm::vec3(1.f, 0.f, 0.f)); // Rotación del plano
 
-        glm::mat4 model_view_matrix(1);
+        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_1));
+        plane.render();
 
-        model_view_matrix = glm::translate(model_view_matrix, glm::vec3(0.f, 0.f, -4.f));
-        model_view_matrix = glm::rotate(model_view_matrix, angle, glm::vec3(1.f, 2.f, 1.f));
+        // Renderizar el cubo
+        glm::mat4 model_view_matrix_2(1.0f); // Matriz identidad
+        model_view_matrix_2 = glm::translate(model_view_matrix_2, glm::vec3(2.f, 0.f, -5.f)); // Posición del cubo
+        model_view_matrix_2 = glm::rotate(model_view_matrix_2, glm::radians(-45.f), glm::vec3(1.f, 0.f, 0.f)); // Sin rotación adicional
 
-        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix));
+        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_2));
+        cube.render();
 
-        // Se dibuja el cubo:
+        // Renderizar el cone
+        glm::mat4 model_view_matrix_3(1.0f); // Matriz identidad
+        model_view_matrix_3 = glm::translate(model_view_matrix_3, glm::vec3(-2.f, 0.f, -5.f)); // Ajustar posición
+        model_view_matrix_3 = glm::rotate(model_view_matrix_3, glm::radians(20.f), glm::vec3(0.f, 1.f, 0.f)); // Sin rotación adicional
+        model_view_matrix_3 = glm::rotate(model_view_matrix_3, glm::radians(45.f), glm::vec3(1.f, 0.f, 0.f)); // Sin rotación adicional
 
-        shape.render();
+        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_3));
+        cone.render();
     }
 
     void Scene::resize(unsigned width, unsigned height)
@@ -113,10 +121,10 @@ namespace SDLTapia
 
         // Se carga el código de los shaders:
 
-        const char* vertex_shaders_code[] = { vertex_shader_code.c_str() };
-        const char* fragment_shaders_code[] = { fragment_shader_code.c_str() };
-        const GLint    vertex_shaders_size[] = { (GLint)vertex_shader_code.size() };
-        const GLint  fragment_shaders_size[] = { (GLint)fragment_shader_code.size() };
+        const char*   vertex_shaders_code[] = {         vertex_shader_code.c_str() };
+        const char* fragment_shaders_code[] = {       fragment_shader_code.c_str() };
+        const GLint   vertex_shaders_size[] = { (GLint)  vertex_shader_code.size() };
+        const GLint fragment_shaders_size[] = { (GLint)fragment_shader_code.size() };
 
         glShaderSource(vertex_shader_id, 1, vertex_shaders_code, vertex_shaders_size);
         glShaderSource(fragment_shader_id, 1, fragment_shaders_code, fragment_shaders_size);

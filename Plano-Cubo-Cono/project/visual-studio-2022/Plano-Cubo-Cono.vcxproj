@@ -130,17 +130,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\code\Cone.cpp" />
+    <ClCompile Include="..\..\code\Cube.cpp" />
     <ClCompile Include="..\..\code\main.cpp" />
+    <ClCompile Include="..\..\code\Plane.cpp" />
     <ClCompile Include="..\..\code\Point3D.cpp" />
     <ClCompile Include="..\..\code\Scene.cpp" />
-    <ClCompile Include="..\..\code\Shape.cpp" />
     <ClCompile Include="..\..\code\Vector.cpp" />
     <ClCompile Include="..\..\code\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\code\Cone.hpp" />
+    <ClInclude Include="..\..\code\Cube.hpp" />
+    <ClInclude Include="..\..\code\Plane.hpp" />
     <ClInclude Include="..\..\code\Point3D.hpp" />
     <ClInclude Include="..\..\code\Scene.hpp" />
-    <ClInclude Include="..\..\code\Shape.hpp" />
     <ClInclude Include="..\..\code\Vector.hpp" />
     <ClInclude Include="..\..\code\Window.hpp" />
   </ItemGroup>

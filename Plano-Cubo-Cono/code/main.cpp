@@ -3,6 +3,7 @@
 */
 
 #include <SDL.h>
+#include <iostream>
 #include "Window.hpp"
 #include "Scene.hpp"
 

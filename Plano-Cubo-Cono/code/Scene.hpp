@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "Shape.hpp"
+#include "Cube.hpp"
+#include "Plane.hpp"
+#include "Cone.hpp"
 #include <string>
 
 namespace SDLTapia
@@ -20,7 +22,9 @@ namespace SDLTapia
         GLint  model_view_matrix_id;
         GLint  projection_matrix_id;
 
-        Shape shape;
+        Plane  plane;
+        Cube   cube;
+        Cone   cone;
         float  angle;
 
     public:
