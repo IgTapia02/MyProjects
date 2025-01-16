@@ -1,46 +1,51 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
-// Este código es de dominio público
-// angel.rodriguez@udit.es
 
-#pragma once
+#ifndef SCENE_HEADER
+#define SCENE_HEADER
 
-#include "Cube.hpp"
-#include "Plane.hpp"
-#include "Cone.hpp"
-#include <string>
+    #include "Cube.hpp"
+    #include "Plane.hpp"
+    #include "Cone.hpp"
+    #include <string>
 
-namespace SDLTapia
-{
-
-    class Scene
+    namespace OpenGLTapia
     {
-    private:
 
-        static const std::string   vertex_shader_code;
-        static const std::string fragment_shader_code;
+        class Scene
+        {
+        private:
 
-        GLint  model_view_matrix_id;
-        GLint  projection_matrix_id;
+            static const std::string   vertex_shader_code;
+            static const std::string fragment_shader_code;
 
-        Plane  plane;
-        Cube   cube;
-        Cone   cone;
-        float  angle;
+            GLint  model_view_matrix_id;
+            GLint  projection_matrix_id;
 
-    public:
+            Plane  plane;
+            Cube   cube;
+            Cone   cone;
+            float  angle;
 
-        Scene(unsigned width, unsigned height);
+        public:
 
-        void   update();
-        void   render();
-        void   resize(unsigned width, unsigned height);
+            Scene(unsigned width, unsigned height);
 
-    private:
+            void   Update();
+            void   Render();
+            void   Resize(unsigned width, unsigned height);
 
-        GLuint compile_shaders();
-        void   show_compilation_error(GLuint  shader_id);
-        void   show_linkage_error(GLuint program_id);
+        private:
 
-    };
+            GLuint CompileShaders();
+            void   ShowCompilationError(GLuint  shader_id);
+            void   ShowLinkageError(GLuint program_id);
 
-}
+        };
+
+    }
+
+#endif
+

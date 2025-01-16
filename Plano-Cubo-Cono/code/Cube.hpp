@@ -1,10 +1,13 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
 #ifndef CUBE_HEADER
 #define CUBE_HEADER
 
     #include <glad/glad.h>
 
-    namespace SDLTapia
+    namespace OpenGLTapia
     {
 
         class Cube
@@ -26,8 +29,9 @@
             Cube();
             ~Cube();
 
-            void render();
+            void Render();
 
         };
     }
+
 #endif

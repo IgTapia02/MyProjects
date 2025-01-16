@@ -1,15 +1,12 @@
-/**
-
-    Aauthor: Ignaacio Tapia Marfil
-
-*/
+// Este código es de dominio público
+// angel.rodriguez@udit.es
 
 #include <cassert>
 #include <glad/glad.h>
 #include <SDL_opengl.h>
 #include "Window.hpp"
 
-namespace SDLTapia 
+namespace OpenGLTapia 
 {
         
     Window::Window
@@ -23,11 +20,10 @@ namespace SDLTapia
         const OpenGL_Context_Settings& context_details
     )
     {
-        //iniciacion de SDL
+
         if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
             throw "Faile init Video";
 
-        //configuracion de sdl
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, context_details.version_major);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, context_details.version_minor);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -37,7 +33,6 @@ namespace SDLTapia
         if (context_details.depth_buffer_size)   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, context_details.depth_buffer_size);
         if (context_details.stencil_buffer_size) SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, context_details.stencil_buffer_size);
 
-        //crear ventana con soporte GL
         window_handle = SDL_CreateWindow
         (
             title,
@@ -50,17 +45,13 @@ namespace SDLTapia
 
         assert(window_handle != nullptr);
 
-        //se grea el openGL
         opengl_context = SDL_GL_CreateContext(window_handle);
 
         assert(opengl_context != nullptr);
 
-        //se inicializa GLAD
         GLenum glad_is_initialized = gladLoadGL();
 
         assert(glad_is_initialized);
-
-        //se activa vsinc
 
         SDL_GL_SetSwapInterval(context_details.enable_vsync ? 1 : 0);
     }
@@ -75,7 +66,7 @@ namespace SDLTapia
 
         SDL_QuitSubSystem (SDL_INIT_VIDEO);
     }
-    
+     
     void Window::swap_buffers()
     {
         SDL_GL_SwapWindow (window_handle);

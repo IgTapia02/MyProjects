@@ -7,7 +7,8 @@
 #include "Window.hpp"
 #include "Scene.hpp"
 
-using namespace SDLTapia;
+using namespace OpenGLTapia;
+
 int main(int , char*[])
 {
     constexpr unsigned viewport_width = 1024;
@@ -29,8 +30,6 @@ int main(int , char*[])
 
     do
     {
-        // Se procesan los eventos acumulados:
-
         SDL_Event event;
 
         while (SDL_PollEvent(&event) > 0)
@@ -41,17 +40,12 @@ int main(int , char*[])
             }
         }
 
-        // Se actualiza la escena:
+        scene.Update();
 
-        scene.update();
-
-        // Se redibuja la escena:
-
-        scene.render();
-
-        // Se actualiza el contenido de la ventana:
+        scene.Render();
 
         window.swap_buffers();
+
     } while (not exit);
 
     SDL_Quit();

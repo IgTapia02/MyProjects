@@ -5,7 +5,7 @@
 #include "Vector.hpp"
 #pragma once
 
-namespace SDLTapia
+namespace OpenGLTapia
 {
 	class Point3D
 	{

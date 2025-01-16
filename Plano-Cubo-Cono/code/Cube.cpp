@@ -1,48 +1,51 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
 #include "Cube.hpp"
 #include <iostream>
 
 
-namespace SDLTapia
+namespace OpenGLTapia
 {
 
     const GLfloat Cube::coordinates[] =
     {
-       -1,-1,+1,            // 0
-       +1,-1,+1,            // 1
-       +1,+1,+1,            // 2
-       -1,+1,+1,            // 3
-       -1,-1,-1,            // 4
-       +1,-1,-1,            // 5
-       +1,+1,-1,            // 6
-       -1,+1,-1,            // 7
+       -1,-1,+1,
+       +1,-1,+1,
+       +1,+1,+1,
+       -1,+1,+1,
+       -1,-1,-1,
+       +1,-1,-1,
+       +1,+1,-1,
+       -1,+1,-1,
     };
 
     const GLfloat Cube::colors[] =
     {
-        0, 0, 1,            // 0    Representa un cubo RGB
-        1, 0, 1,            // 1 
-        1, 1, 1,            // 2
-        0, 1, 1,            // 3
-        0, 0, 0,            // 4
-        1, 0, 0,            // 5
-        1, 1, 0,            // 6
-        0, 1, 0,            // 7
+        0, 0, 1,
+        1, 0, 1,
+        1, 1, 1,
+        0, 1, 1,
+        0, 0, 0,
+        1, 0, 0,
+        1, 1, 0,
+        0, 1, 0,
     };
 
     const GLubyte Cube::indices[] =
     {
-        0, 1, 2,            // front
+        0, 1, 2,
         0, 2, 3,
-        4, 0, 3,            // left
+        4, 0, 3,
         4, 3, 7,
-        7, 5, 4,            // back
+        7, 5, 4,
         7, 6, 5,
-        1, 5, 6,            // right
+        1, 5, 6,
         1, 6, 2,
-        3, 2, 6,            // top
+        3, 2, 6,
         3, 6, 7,
-        5, 0, 4,            // bottom
+        5, 0, 4,
         5, 1, 0,
     };
 
@@ -77,7 +80,7 @@ namespace SDLTapia
         glDeleteBuffers     (3, vbo_ids);
     }
     
-    void Cube::render()
+    void Cube::Render()
     {
         glBindVertexArray   (vao_id);
         glDrawElements      (GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_BYTE, 0);

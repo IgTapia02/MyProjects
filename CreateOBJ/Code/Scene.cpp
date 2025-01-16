@@ -1,6 +1,6 @@
-
-// Este código es de dominio público
-// angel.rodriguez@udit.es
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
 #include "Scene.hpp"
 
@@ -9,9 +9,9 @@
 #include <iostream>
 #include <vector>
 
-#include <glm/glm.hpp>                          // vec3, vec4, ivec4, mat4
-#include <glm/gtc/matrix_transform.hpp>         // translate, rotate, scale, perspective
-#include <glm/gtc/type_ptr.hpp>                 // value_ptr
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -21,7 +21,7 @@
 using namespace std;
 using namespace glm;
 
-namespace udit
+namespace OpenGlTapia
 {
 
     const string Scene::vertex_shader_code =
@@ -57,22 +57,21 @@ namespace udit
     Scene::Scene(int width, int height, const std::string& _filePath)
         : filePath(_filePath),
         mesh(_filePath),
-        camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f)
+        camera(glm::vec3(0.0f, 600.0f, 0.f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f)
     {
-        // Se establece la configuración básica:
+
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glClearColor(.1f, .1f, .1f, 1.f);
 
-        // Se compilan y se activan los shaders:
-        GLuint program_id = compile_shaders();
+        GLuint program_id = CompileShaders();
 
         glUseProgram(program_id);
 
         model_view_matrix_id = glGetUniformLocation(program_id, "model_view_matrix");
         projection_matrix_id = glGetUniformLocation(program_id, "projection_matrix");
 
-        resize(width, height);
+        Resize(width, height);
     }
 
     Scene::~Scene()
@@ -81,38 +80,41 @@ namespace udit
         glDeleteBuffers(VBO_COUNT, vbo_ids);
     }
 
-    void Scene::update()
+    void Scene::Update()
     {
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
-        processInput(keyboardState, 1.f);
+        ProcessInput(keyboardState, 1.f);
 
         int xrel, yrel;
         SDL_GetRelativeMouseState(&xrel, &yrel);
-        processMouseMotion(xrel, yrel);
+        ProcessMouseMotion(xrel, yrel);
 
     }
 
-    void Scene::render()
+    void Scene::Render()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 model_view_matrix_1 = camera.GetViewMatrix(); // Matriz identidad
+        glm::mat4 model_view_matrix_1 = camera.GetViewMatrix();
 
-        model_view_matrix_1 = glm::translate(model_view_matrix_1, glm::vec3(0.f, 0.f, 0.f)); // Posición del plano
+        model_view_matrix_1 = glm::translate(model_view_matrix_1, glm::vec3(-2000.f, 0.f, -2000.f));
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_1));
-        ground.render();
+        ground.Render();
 
-        // Se calcula la matriz de vista desde la cámara
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 model_view_matrix_2 = camera.GetViewMatrix();
 
-        mesh.render(model_view_matrix_id, view);
+        model_view_matrix_2 = glm::translate(model_view_matrix_2, glm::vec3(0.f, 310.f, 0.f));
 
-        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(view));
+        model_view_matrix_2 = glm::scale(model_view_matrix_2, glm::vec3(3.f, 3.f, 3.f));
+
+        mesh.Render(model_view_matrix_id, model_view_matrix_2);
+
+        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_2));
     }
 
-    void Scene::resize(int width, int height)
+    void Scene::Resize(int width, int height)
     {
         glm::mat4 projection_matrix = glm::perspective(20.f, GLfloat(500) / 500, 1.f, 5000.f);
 
@@ -121,16 +123,12 @@ namespace udit
         glViewport(0, 0, (float)width, (float)height);
     }
 
-    GLuint Scene::compile_shaders()
+    GLuint Scene::CompileShaders()
     {
         GLint succeeded = GL_FALSE;
 
-        // Se crean objetos para los shaders:
-
         GLuint   vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
         GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
-
-        // Se carga el código de los shaders:
 
         const char* vertex_shaders_code[] = { vertex_shader_code.c_str() };
         const char* fragment_shaders_code[] = { fragment_shader_code.c_str() };
@@ -140,38 +138,24 @@ namespace udit
         glShaderSource(vertex_shader_id, 1, vertex_shaders_code, vertex_shaders_size);
         glShaderSource(fragment_shader_id, 1, fragment_shaders_code, fragment_shaders_size);
 
-        // Se compilan los shaders:
-
         glCompileShader(vertex_shader_id);
         glCompileShader(fragment_shader_id);
 
-        // Se comprueba que si la compilación ha tenido éxito:
-
         glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &succeeded);
-        if (!succeeded) show_compilation_error(vertex_shader_id);
+        if (!succeeded) ShowCompilationError(vertex_shader_id);
 
         glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &succeeded);
-        if (!succeeded) show_compilation_error(fragment_shader_id);
-
-        // Se crea un objeto para un programa:
+        if (!succeeded) ShowCompilationError(fragment_shader_id);
 
         GLuint program_id = glCreateProgram();
-
-        // Se cargan los shaders compilados en el programa:
 
         glAttachShader(program_id, vertex_shader_id);
         glAttachShader(program_id, fragment_shader_id);
 
-        // Se linkan los shaders:
-
         glLinkProgram(program_id);
 
-        // Se comprueba si el linkage ha tenido éxito:
-
         glGetProgramiv(program_id, GL_LINK_STATUS, &succeeded);
-        if (!succeeded) show_linkage_error(program_id);
-
-        // Se liberan los shaders compilados una vez se han linkado:
+        if (!succeeded) ShowLinkageError(program_id);
 
         glDeleteShader(vertex_shader_id);
         glDeleteShader(fragment_shader_id);
@@ -179,7 +163,7 @@ namespace udit
         return (program_id);
     }
 
-    void Scene::show_compilation_error(GLuint shader_id)
+    void Scene::ShowCompilationError(GLuint shader_id)
     {
         string info_log;
         GLint  info_log_length;
@@ -192,14 +176,10 @@ namespace udit
 
         cerr << info_log.c_str() << endl;
 
-#ifdef _MSC_VER
-        //OutputDebugStringA (info_log.c_str ());
-#endif
-
         assert(false);
     }
 
-    void Scene::show_linkage_error(GLuint program_id)
+    void Scene::ShowLinkageError(GLuint program_id)
     {
         string info_log;
         GLint  info_log_length;
@@ -212,14 +192,10 @@ namespace udit
 
         cerr << info_log.c_str() << endl;
 
-#ifdef _MSC_VER
-        //OutputDebugStringA (info_log.c_str ());
-#endif
-
         assert(false);
     }
 
-    void Scene::processInput(const Uint8* keyboardState, float deltaTime)
+    void Scene::ProcessInput(const Uint8* keyboardState, float deltaTime)
     {
         float cameraSpeed = 2.5f * deltaTime;
 
@@ -229,8 +205,9 @@ namespace udit
         if (keyboardState[SDL_SCANCODE_D]) camera.ProcessKeyboard(RIGHT, deltaTime);
     }
 
-    void Scene :: processMouseMotion(int xrel, int yrel) {
-        float sensitivity = 1.f; // Ajusta la sensibilidad del ratón
+    void Scene :: ProcessMouseMotion(int xrel, int yrel) 
+    {
+        float sensitivity = 2.f;
         camera.ProcessMouseMovement(xrel * sensitivity, yrel * sensitivity, true);
     }
 

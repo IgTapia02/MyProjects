@@ -1,3 +1,6 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
 #ifndef CONE_HEADER
 #define CONE_HEADER
@@ -6,7 +9,7 @@
     #include <vector>
     #include <glad/glad.h>
 
-    namespace SDLTapia
+    namespace OpenGLTapia
     {
 
         class Cone
@@ -18,9 +21,9 @@
             GLuint vao_id;
             GLuint numIndices;
 
-            std::vector<GLfloat> generateCoordinates();
-            std::vector<GLfloat> generateColors();
-            std::vector<GLubyte> generateIndices();
+            std::vector<GLfloat> GenerateCoordinates();
+            std::vector<GLfloat> GenerateColors();
+            std::vector<GLubyte> GenerateIndices();
 
             int         segments = 36;
             float       radius   = 1.0f;
@@ -31,7 +34,7 @@
             Cone();
             ~Cone();
 
-            void render();
+            void Render();
 
         };
     }

@@ -1,4 +1,3 @@
-
 // Este código es de dominio público
 // angel.rodriguez@udit.es
 
@@ -8,7 +7,7 @@
 #include <string>
 #include <utility>
 
-namespace udit
+namespace OpenGLTapia
 {
 
     class Window
@@ -84,7 +83,7 @@ namespace udit
 
     public:
 
-        void swap_buffers();
+        void SwapBuffers();
 
     };
 

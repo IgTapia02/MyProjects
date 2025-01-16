@@ -1,18 +1,16 @@
-
-// Este código es de dominio público
-// angel.rodriguez@udit.es
-
-#pragma once
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
 #include "Scene.hpp"
 
 #include <iostream>
 
-#include <glm/glm.hpp>                          // vec3, vec4, ivec4, mat4
-#include <glm/gtc/matrix_transform.hpp>         // translate, rotate, scale, perspective
-#include <glm/gtc/type_ptr.hpp>                 // value_ptr
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-namespace SDLTapia
+namespace OpenGLTapia
 {
 
     using namespace std;
@@ -47,61 +45,54 @@ namespace SDLTapia
         "    fragment_color = vec4(front_color, 1.0);"
         "}";
 
-    Scene::Scene(unsigned width, unsigned height):angle(0)
+    Scene::Scene(unsigned width, unsigned height)
     {
-        // Se establece la configuración básica:
-
         glEnable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
         glClearColor(.2f, .2f, .2f, 1.f);
 
-        // Se compilan y se activan los shaders:
-
-        GLuint program_id = compile_shaders();
+        GLuint program_id = CompileShaders();
 
         glUseProgram(program_id);
 
         model_view_matrix_id = glGetUniformLocation(program_id, "model_view_matrix");
         projection_matrix_id = glGetUniformLocation(program_id, "projection_matrix");
 
-        resize(width, height);
+        Resize(width, height);
     }
 
-    void Scene::update()
+    void Scene::Update()
     {
     }
 
-    void Scene::render()
+    void Scene::Render()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Renderizar el plano (suelo)
-        glm::mat4 model_view_matrix_1(1.0f); // Matriz identidad
+        glm::mat4 model_view_matrix_1(1.0f);
         model_view_matrix_1 = glm::translate(model_view_matrix_1, glm::vec3(-4.f, -1.f, -2.f)); // Posición del plano
         model_view_matrix_1 = glm::rotate(model_view_matrix_1, glm::radians(-45.f), glm::vec3(1.f, 0.f, 0.f)); // Rotación del plano
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_1));
-        plane.render();
+        plane.Render();
 
-        // Renderizar el cubo
-        glm::mat4 model_view_matrix_2(1.0f); // Matriz identidad
+        glm::mat4 model_view_matrix_2(1.0f);
         model_view_matrix_2 = glm::translate(model_view_matrix_2, glm::vec3(2.f, 0.f, -5.f)); // Posición del cubo
         model_view_matrix_2 = glm::rotate(model_view_matrix_2, glm::radians(-45.f), glm::vec3(1.f, 0.f, 0.f)); // Sin rotación adicional
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_2));
-        cube.render();
+        cube.Render();
 
-        // Renderizar el cone
-        glm::mat4 model_view_matrix_3(1.0f); // Matriz identidad
+        glm::mat4 model_view_matrix_3(1.0f);
         model_view_matrix_3 = glm::translate(model_view_matrix_3, glm::vec3(-2.f, 0.f, -5.f)); // Ajustar posición
         model_view_matrix_3 = glm::rotate(model_view_matrix_3, glm::radians(20.f), glm::vec3(0.f, 1.f, 0.f)); // Sin rotación adicional
         model_view_matrix_3 = glm::rotate(model_view_matrix_3, glm::radians(45.f), glm::vec3(1.f, 0.f, 0.f)); // Sin rotación adicional
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix_3));
-        cone.render();
+        cone.Render();
     }
 
-    void Scene::resize(unsigned width, unsigned height)
+    void Scene::Resize(unsigned width, unsigned height)
     {
         glm::mat4 projection_matrix = glm::perspective(20.f, GLfloat(width) / height, 1.f, 5000.f);
 
@@ -110,16 +101,12 @@ namespace SDLTapia
         glViewport(0, 0, width, height);
     }
 
-    GLuint Scene::compile_shaders()
+    GLuint Scene::CompileShaders()
     {
         GLint succeeded = GL_FALSE;
 
-        // Se crean objetos para los shaders:
-
         GLuint   vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
         GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
-
-        // Se carga el código de los shaders:
 
         const char*   vertex_shaders_code[] = {         vertex_shader_code.c_str() };
         const char* fragment_shaders_code[] = {       fragment_shader_code.c_str() };
@@ -129,38 +116,24 @@ namespace SDLTapia
         glShaderSource(vertex_shader_id, 1, vertex_shaders_code, vertex_shaders_size);
         glShaderSource(fragment_shader_id, 1, fragment_shaders_code, fragment_shaders_size);
 
-        // Se compilan los shaders:
-
         glCompileShader(vertex_shader_id);
         glCompileShader(fragment_shader_id);
 
-        // Se comprueba que si la compilación ha tenido éxito:
-
         glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &succeeded);
-        if (!succeeded) show_compilation_error(vertex_shader_id);
+        if (!succeeded) ShowCompilationError(vertex_shader_id);
 
         glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &succeeded);
-        if (!succeeded) show_compilation_error(fragment_shader_id);
-
-        // Se crea un objeto para un programa:
+        if (!succeeded) ShowCompilationError(fragment_shader_id);
 
         GLuint program_id = glCreateProgram();
-
-        // Se cargan los shaders compilados en el programa:
 
         glAttachShader(program_id, vertex_shader_id);
         glAttachShader(program_id, fragment_shader_id);
 
-        // Se linkan los shaders:
-
         glLinkProgram(program_id);
 
-        // Se comprueba si el linkage ha tenido éxito:
-
         glGetProgramiv(program_id, GL_LINK_STATUS, &succeeded);
-        if (!succeeded) show_linkage_error(program_id);
-
-        // Se liberan los shaders compilados una vez se han linkado:
+        if (!succeeded) ShowLinkageError(program_id);
 
         glDeleteShader(vertex_shader_id);
         glDeleteShader(fragment_shader_id);
@@ -168,7 +141,7 @@ namespace SDLTapia
         return (program_id);
     }
 
-    void Scene::show_compilation_error(GLuint shader_id)
+    void Scene::ShowCompilationError(GLuint shader_id)
     {
         string info_log;
         GLint  info_log_length;
@@ -181,14 +154,10 @@ namespace SDLTapia
 
         cerr << info_log.c_str() << endl;
 
-#ifdef _MSC_VER
-        //OutputDebugStringA (info_log.c_str ());
-#endif
-
         assert(false);
     }
 
-    void Scene::show_linkage_error(GLuint program_id)
+    void Scene::ShowLinkageError(GLuint program_id)
     {
         string info_log;
         GLint  info_log_length;
@@ -200,10 +169,6 @@ namespace SDLTapia
         glGetProgramInfoLog(program_id, info_log_length, NULL, &info_log.front());
 
         cerr << info_log.c_str() << endl;
-
-#ifdef _MSC_VER
-        //OutputDebugStringA (info_log.c_str ());
-#endif
 
         assert(false);
     }

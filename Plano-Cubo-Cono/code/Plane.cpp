@@ -1,11 +1,13 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
 #include "Plane.hpp"
-#include <iostream>
 
-namespace SDLTapia 
+namespace OpenGLTapia
 {
 
-    std::vector<GLfloat> Plane::generateCoordinates()
+    std::vector<GLfloat> Plane::GenerateCoordinates()
     {
         std::vector<GLfloat> coordinates;
 
@@ -30,33 +32,32 @@ namespace SDLTapia
         return coordinates;
     }
 
-    std::vector<GLfloat> Plane::generateColors()
+    std::vector<GLfloat> Plane::GenerateColors()
     {
         std::vector<GLfloat> colors;
 
-        // Alternar colores entre rojo, verde y azul
         for (int i = 0; i <= segments; ++i)
         {
             for (int j = 0; j <= segments; ++j)
             {
-                int color_index = (i * (segments + 1) + j) % 3; // Determina el color basado en el índice del vértice
-                if (color_index == 0) // Rojo
+                int color_index = (i * (segments + 1) + j) % 3;
+                if (color_index == 0)
                 {
-                    colors.push_back(1.0f); // R
-                    colors.push_back(0.0f); // G
-                    colors.push_back(1.0f); // B
+                    colors.push_back(1.0f);
+                    colors.push_back(0.0f);
+                    colors.push_back(1.0f);
                 }
-                else if (color_index == 1) // Verde
+                else if (color_index == 1)
                 {
-                    colors.push_back(1.0f); // R
-                    colors.push_back(1.0f); // G
-                    colors.push_back(0.0f); // B
+                    colors.push_back(1.0f);
+                    colors.push_back(1.0f);
+                    colors.push_back(0.0f);
                 }
-                else if (color_index == 2) // Azul
+                else if (color_index == 2)
                 {
-                    colors.push_back(0.0f); // R
-                    colors.push_back(1.0f); // G
-                    colors.push_back(1.0f); // B
+                    colors.push_back(0.0f);
+                    colors.push_back(1.0f);
+                    colors.push_back(1.0f);
                 }
             }
         }
@@ -64,52 +65,26 @@ namespace SDLTapia
         return colors;
     }
 
-    std::vector<GLushort> Plane::generateIndices()
+    std::vector<GLushort> Plane::GenerateIndices()
     {
-
-    //    //// La malla tiene (segments + 1) x (segments + 1) vértices
-    //    //int verticesPerRow = segments + 1;
-    //    int actualVert = 1;
-
-    //    for (int y = 0; y < segments; ++y) // Iterar por filas de la malla
-    //    {
-    //        for (int x = 0; x < segments; ++x) // Iterar por columnas de la malla
-    //        {
-    //            indices.push_back(actualVert);
-    //            indices.push_back(actualVert - 1);
-    //            indices.push_back(actualVert + segments);
-
-    //            indices.push_back(actualVert);
-    //            indices.push_back(actualVert + segments);
-    //            indices.push_back(actualVert + segments + 1);
-
-    //            actualVert++;
-    //        }
-
-    //        actualVert++;
-    //    }
-
         std::vector<GLushort> indices;
 
-        // Empezamos desde el vértice 0
         int actualVert = 0;
 
         for (int y = 0; y < segments; ++y) {
             for (int x = 0; x < segments; ++x) {
-                // Cada cuadrado se convierte en dos triángulos:
-                // 1. Primer triángulo
+
                 indices.push_back(actualVert);
                 indices.push_back(actualVert + 1);
                 indices.push_back(actualVert + segments + 1);
 
-                // 2. Segundo triángulo
                 indices.push_back(actualVert + 1);
                 indices.push_back(actualVert + segments + 2);
                 indices.push_back(actualVert + segments + 1);
 
                 actualVert++;
             }
-            // Desplazamos al siguiente nivel de fila
+
             actualVert++;
         }
 
@@ -118,30 +93,9 @@ namespace SDLTapia
 
     Plane::Plane()
     {
-        auto coordinates = generateCoordinates();
-        auto colors = generateColors();
-        auto indices = generateIndices();
-
-        std::cout << "Coordinates: ";
-        for (const auto& coord : coordinates)
-        {
-            std::cout << coord << " ";
-        }
-        std::cout << std::endl;
-
-        std::cout << "Colors: ";
-        for (const auto& color : colors)
-        {
-            std::cout << color << " ";
-        }
-        std::cout << std::endl;
-
-        std::cout << "Indices: ";
-        for (const auto& index : indices)
-        {
-            std::cout << static_cast<int>(index) << " "; // Convertir a int para legibilidad si es GLubyte
-        }
-        std::cout << std::endl;
+        auto coordinates = GenerateCoordinates();
+        auto colors = GenerateColors();
+        auto indices = GenerateIndices();
 
         numIndices = indices.size() * sizeof(GLubyte);
 
@@ -173,7 +127,7 @@ namespace SDLTapia
         glDeleteBuffers(3, vbo_ids);
     }
 
-    void Plane::render()
+    void Plane::Render()
     {
         glBindVertexArray(vao_id);
         glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);

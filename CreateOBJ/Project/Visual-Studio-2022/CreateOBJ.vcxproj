@@ -20,10 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Code\Camera.hpp" />
+    <ClInclude Include="..\..\Code\Color.hpp" />
+    <ClInclude Include="..\..\Code\Color_Buffer.hpp" />
     <ClInclude Include="..\..\Code\Ground.hpp" />
     <ClInclude Include="..\..\Code\Mesh.hpp" />
     <ClInclude Include="..\..\Code\MeshSaveLoad.hpp" />
     <ClInclude Include="..\..\Code\Scene.hpp" />
+    <ClInclude Include="..\..\Code\Texture_Cube.hpp" />
     <ClInclude Include="..\..\Code\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +36,7 @@
     <ClCompile Include="..\..\Code\MeshSaveLoad.cpp" />
     <ClCompile Include="..\..\Code\Scene.cpp" />
     <ClCompile Include="..\..\Code\stb.cpp" />
+    <ClCompile Include="..\..\Code\Texture_Cube.cpp" />
     <ClCompile Include="..\..\Code\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -138,12 +142,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../../../libs/sdl/include;../../../libs/glad/include;../../../libs/glm/include;../../../libs/assimp/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../../../libs/sdl/lib/windows/visual-studio-2022/static-x64;../../../libs/glad/lib/windows/visual-studio-2022/static-x64;../../../libs/assimp/lib/Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2-staticd.lib;SDL2maind.lib;gladd.lib;assimp-vc143-mtd.lib;zlibstaticd.lib;imm32.lib;setupapi.lib;version.lib;winmm.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

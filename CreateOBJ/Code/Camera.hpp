@@ -1,110 +1,123 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
+
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+    #include <glm/glm.hpp>
+    #include <glm/gtc/matrix_transform.hpp>
+    #include <glm/gtc/type_ptr.hpp>
 
-#include <iostream>
+    #include <iostream>
+        namespace OpenGLTapia
+        {
 
-// Enumeración para el movimiento de la cámara
-enum CameraMovement {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT
-};
+            enum CameraMovement {
+                FORWARD,
+                BACKWARD,
+                LEFT,
+                RIGHT
+            };
 
-class Camera {
-public:
-    // Atributos de la cámara
-    glm::vec3 Position;
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
+            class Camera {
+            public:
 
-    // Ángulos de Euler
-    float Yaw;
-    float Pitch;
+                glm::vec3 Position;
+                glm::vec3 Front;
+                glm::vec3 Up;
+                glm::vec3 Right;
+                glm::vec3 WorldUp;
 
-    // Opciones de la cámara
-    float MovementSpeed;
-    float MouseSensitivity;
-    float Zoom;
+                float Yaw;
+                float Pitch;
 
-    // Constructor
-    Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-        MovementSpeed(2.5f), MouseSensitivity(0.1f), Zoom(45.0f) {
-        Position = position;
-        WorldUp = up;
-        Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
-    }
+                float MovementSpeed;
+                float MouseSensitivity;
+                float Zoom;
 
-    // Devuelve la matriz de vista calculada con LookAt
-    glm::mat4 GetViewMatrix() {
-        return glm::lookAt(Position, Position + Front, Up);
-    }
+                Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+                    : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+                    MovementSpeed(2.5f), MouseSensitivity(0.1f), Zoom(45.0f) 
+                {
+                    Position = position;
+                    WorldUp = up;
+                    Yaw = yaw;
+                    Pitch = pitch;
+                    UpdateCameraVectors();
+                }
 
-    // Procesa la entrada del teclado
-    void ProcessKeyboard(CameraMovement direction, float deltaTime) {
+                glm::mat4 GetViewMatrix() {
+                    return glm::lookAt(Position, Position + Front, Up);
+                }
 
-        float velocity = MovementSpeed * deltaTime;
-        if (direction == FORWARD)
-            Position += Front * velocity;
-        if (direction == BACKWARD)
-            Position -= Front * velocity;
-        if (direction == LEFT)
-            Position -= Right * velocity;
-        if (direction == RIGHT)
-            Position += Right * velocity;
-    }
+                void ProcessKeyboard(CameraMovement direction, float deltaTime) {
 
-    // Procesa la entrada del ratón
-    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true) {
-        xoffset *= MouseSensitivity;
-        yoffset *= MouseSensitivity;
+                    float velocity = MovementSpeed * deltaTime;
+                    if (direction == FORWARD)
+                        Position += Front * velocity;
+                    if (direction == BACKWARD)
+                        Position -= Front * velocity;
+                    if (direction == LEFT)
+                        Position -= Right * velocity;
+                    if (direction == RIGHT)
+                        Position += Right * velocity;
+                }
 
-        Yaw += xoffset;
-        Pitch -= yoffset;
+                void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true) {
+                    xoffset *= MouseSensitivity;
+                    yoffset *= MouseSensitivity;
 
-        // Asegura que el ángulo de pitch esté limitado
-        if (constrainPitch) {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
+                    Yaw += xoffset;
+                    Pitch -= yoffset;
+
+                    if (constrainPitch) {
+                        if (Pitch > 89.0f)
+                            Pitch = 89.0f;
+                        if (Pitch < -89.0f)
+                            Pitch = -89.0f;
+                    }
+
+                    UpdateCameraVectors();
+                }
+
+                void ProcessMouseScroll(float yoffset) {
+                    Zoom -= yoffset;
+                    if (Zoom < 1.0f)
+                        Zoom = 1.0f;
+                    if (Zoom > 45.0f)
+                        Zoom = 45.0f;
+                }
+
+            private:
+
+                void UpdateCameraVectors() {
+                    glm::vec3 front;
+                    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+                    front.y = sin(glm::radians(Pitch));
+                    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+                    Front = glm::normalize(front);
+
+                    Right = glm::normalize(glm::cross(Front, WorldUp));
+                    Up = glm::normalize(glm::cross(Right, Front));
+                }
+
+            public:
+                const glm::mat4& get_projection_matrix() const
+                {
+                    return projection_matrix;
+                }
+
+                glm::mat4 get_transform_matrix_inverse() const
+                {
+                    return glm::lookAt
+                    (
+                        glm::vec3(Position[0], Position[1], Position[2]),
+                        glm::vec3(target[0], target[1], target[2]),
+                        glm::vec3(0.0f, 1.0f, 0.0f)
+                    );
+                }
+            };
         }
-
-        // Actualiza los vectores Front, Right y Up
-        updateCameraVectors();
-    }
-
-    // Procesa el zoom con la rueda del ratón
-    void ProcessMouseScroll(float yoffset) {
-        Zoom -= yoffset;
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
-    }
-
-private:
-    // Calcula los vectores Front, Right y Up
-    void updateCameraVectors() {
-        glm::vec3 front;
-        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        front.y = sin(glm::radians(Pitch));
-        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        Front = glm::normalize(front);
-
-        // También recalcula Right y Up
-        Right = glm::normalize(glm::cross(Front, WorldUp));
-        Up = glm::normalize(glm::cross(Right, Front));
-    }
-};
 
 #endif

@@ -1,75 +1,82 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
 
-// Este código es de dominio público
-// angel.rodriguez@udit.es
+    #ifndef SCENE_HEADER
+    #define SCENE_HEADER
 
-#ifndef SCENE_HEADER
-#define SCENE_HEADER
+    #include <SDL.h>
+    #include <glad/glad.h>
+    #include <glm/glm.hpp>
+    #include <string>
+    #include <vector>
 
-#include <SDL.h>
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <string>
-#include <vector>
+    #include "Camera.hpp"
+    #include "Mesh.hpp"
+    #include "Ground.hpp"
 
-#include "Camera.hpp"
-#include "Mesh.hpp"
-#include "Ground.hpp"
-
-namespace udit
-{
-
-    using glm::vec3;
-
-    class Scene
+    namespace OpenGlTapia
     {
-    private:
-
-        enum
+        using glm::vec3;
+        /** Clase para generar la escena principal
+      */
+        class Scene
         {
-            COORDINATES_VBO,
-            COLORS_VBO,
-            INDICES_EBO,
-            VBO_COUNT
+        private:
+
+            enum
+            {
+                COORDINATES_VBO,
+                COLORS_VBO,
+                INDICES_EBO,
+                VBO_COUNT
+            };
+
+            static const std::string   vertex_shader_code;
+            static const std::string fragment_shader_code;
+
+            GLuint  vbo_ids[VBO_COUNT];
+            GLuint  vao_id;
+
+            GLsizei number_of_indices;
+
+            GLint   model_view_matrix_id;
+            GLint   projection_matrix_id;
+
+            const std::string& filePath; ///< Path del objeto que queremos instanciar.
+
+            Mesh mesh;
+            Ground ground; ///< Plano que vamos a usar como suelo.
+
+            Camera camera;
+
+        public:
+
+            Scene(int width, int height, const std::string& _filePath);
+            ~Scene();
+
+            /// Bucle principal del programa.
+            void   Update();
+
+            /// Función para instanciar todas las Mesh necesarias y colocarlas en escena.
+            void   Render();
+
+            /// Función para reajustar las dimensiones y posiciones de la escena segun las dimensiones de la ventana.
+            void   Resize(int width, int height);
+
+        private:
+
+            GLuint CompileShaders();
+            void   ShowCompilationError(GLuint  shader_id);
+            void   ShowLinkageError(GLuint program_id);
+
+            /// Función para manejar los Inputs de teclado.
+            void ProcessInput(const Uint8* keyboardState, float deltaTime);
+
+            /// Función para manejar los Inputs de ratón.
+            void ProcessMouseMotion(int xrel, int yrel);
         };
 
-        static const std::string   vertex_shader_code;
-        static const std::string fragment_shader_code;
-
-        GLuint  vbo_ids[VBO_COUNT];
-        GLuint  vao_id;
-
-        GLsizei number_of_indices;
-
-        GLint   model_view_matrix_id;
-        GLint   projection_matrix_id;
-
-        const std::string& filePath;
-
-        Mesh mesh;
-        Ground ground;
-
-        Camera camera;
-
-    public:
-
-        Scene(int width, int height, const std::string& _filePath);
-        ~Scene();
-
-        void   update();
-        void   render();
-        void   resize(int width, int height);
-
-    private:
-
-        GLuint compile_shaders();
-        void   show_compilation_error(GLuint  shader_id);
-        void   show_linkage_error(GLuint program_id);
-
-
-        void processInput(const Uint8* keyboardState, float deltaTime);
-        void processMouseMotion(int xrel, int yrel);
-    };
-
-}
+    }
 
 #endif

@@ -1,15 +1,18 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
+
 #include "Ground.hpp"
 #include <iostream>
 #include "../../../libs/stb/include/stb_image.h"
 
-namespace udit
+namespace OpenGlTapia
 {
 
-    // Función para cargar la imagen del height map
     GLuint Ground::loadHeightMap(const std::string& path, int& width, int& height)
     {
         int channels;
-        unsigned char* image = stbi_load(path.c_str(), &width, &height, &channels, 1); // Cargar como imagen en escala de grises
+        unsigned char* image = stbi_load(path.c_str(), &width, &height, &channels, 1);
 
         if (!image) {
             std::cerr << "Error al cargar el height map: " << path << std::endl;
@@ -23,28 +26,26 @@ namespace udit
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        stbi_image_free(image); // Liberar memoria después de cargar la imagen
+        stbi_image_free(image);
         return textureID;
     }
 
-    std::vector<GLfloat> Ground::generateCoordinates()
+    std::vector<GLfloat> Ground::GenerateCoordinates()
     {
         std::vector<GLfloat> coordinates;
 
         float x = 0.f;
         float y = 0.f;
 
-        // Cargar el height map
         int heightMapWidth, heightMapHeight;
 
-        unsigned char* heightMapData = stbi_load("../../../assets/HeightMap2.png", &heightMapWidth, &heightMapHeight, nullptr, 1); // Cargar como escala de grises
+        unsigned char* heightMapData = stbi_load("../../../assets/HeightMap2.png", &heightMapWidth, &heightMapHeight, nullptr, 1);
 
         if (!heightMapData) {
             std::cerr << "Error al cargar el height map" << std::endl;
             return coordinates;
         }
 
-        // Calcular el tamaño de cada segmento
         float segmentWidth = length_X / segments;
         float segmentHeight = length_Y / segments;
 
@@ -52,65 +53,60 @@ namespace udit
         {
             for (int j = 0; j <= segments; ++j)
             {
-                coordinates.push_back(x); // Posición X del vértice en el plano
+                coordinates.push_back(x);
 
-                // Mapear las coordenadas del vértice (x, y) al rango del height map
-                float normalizedX = static_cast<float>(j) / segments; // Normalizar j al rango [0, 1]
-                float normalizedY = static_cast<float>(i) / segments; // Normalizar i al rango [0, 1]
+                float normalizedX = static_cast<float>(j) / segments;
+                float normalizedY = static_cast<float>(i) / segments;
 
-                // Calcular las coordenadas del height map en píxeles
                 int texX = static_cast<int>(normalizedX * (heightMapWidth - 1));
                 int texY = static_cast<int>(normalizedY * (heightMapHeight - 1));
 
-                // Obtener el valor de altura del height map
-                unsigned char pixelValue = heightMapData[texY * heightMapWidth + texX]; // Acceder al píxel correspondiente
+                unsigned char pixelValue = heightMapData[texY * heightMapWidth + texX];
 
-                GLfloat heightValue = static_cast<GLfloat>(pixelValue) / 255.0f * 500.0f; // Escalar el valor del height map a la altura deseada
+                GLfloat heightValue = static_cast<GLfloat>(pixelValue) / 255.0f * 500.0f;
 
-                coordinates.push_back(heightValue); // Usar la altura como la coordenada Z
+                coordinates.push_back(heightValue);
 
+                coordinates.push_back(y);
 
-                coordinates.push_back(y); // Posición Y del vértice en el plano
-
-                x += segmentWidth; // Incrementar la posición X del plano
+                x += segmentWidth;
             }
 
-            x = 0.f; // Reiniciar X para la siguiente fila
-            y += segmentHeight; // Incrementar la posición Y del plano
+            x = 0.f;
+            y += segmentHeight;
         }
 
-        stbi_image_free(heightMapData); // Liberar la memoria del height map
+        stbi_image_free(heightMapData);
 
         return coordinates;
     }
 
-    std::vector<GLfloat> Ground::generateColors()
+    std::vector<GLfloat> Ground::GenerateColors()
     {
         std::vector<GLfloat> colors;
 
-        // Alternar colores entre rojo, verde y azul
         for (int i = 0; i <= segments; ++i)
         {
             for (int j = 0; j <= segments; ++j)
             {
-                int color_index = (i * (segments + 1) + j) % 3; // Determina el color basado en el índice del vértice
-                if (color_index == 0) // Rojo
+                int color_index = (i * (segments + 1) + j) % 3;
+                if (color_index == 0)
                 {
-                    colors.push_back(1.0f); // R
-                    colors.push_back(0.0f); // G
-                    colors.push_back(1.0f); // B
+                    colors.push_back(1.0f);
+                    colors.push_back(0.0f);
+                    colors.push_back(1.0f);
                 }
-                else if (color_index == 1) // Verde
+                else if (color_index == 1)
                 {
-                    colors.push_back(1.0f); // R
-                    colors.push_back(1.0f); // G
-                    colors.push_back(0.0f); // B
+                    colors.push_back(1.0f);
+                    colors.push_back(1.0f);
+                    colors.push_back(0.0f);
                 }
-                else if (color_index == 2) // Azul
+                else if (color_index == 2)
                 {
-                    colors.push_back(0.0f); // R
-                    colors.push_back(1.0f); // G
-                    colors.push_back(1.0f); // B
+                    colors.push_back(0.0f);
+                    colors.push_back(1.0f);
+                    colors.push_back(1.0f);
                 }
             }
         }
@@ -118,11 +114,10 @@ namespace udit
         return colors;
     }
 
-    std::vector<GLushort> Ground::generateIndices()
+    std::vector<GLushort> Ground::GenerateIndices()
     {
         std::vector<GLushort> indices;
 
-        // Empezamos desde el vértice 0
         int actualVert = 0;
 
         for (int y = 0; y < segments * 2; ++y) 
@@ -130,13 +125,10 @@ namespace udit
             for (int x = 0; x < segments; ++x) 
             {
 
-                // Cada cuadrado se convierte en dos triángulos:
-                // 1. Primer triángulo
                 indices.push_back(actualVert + 1);
                 indices.push_back(actualVert);
                 indices.push_back(actualVert + segments + 1);
 
-                // 2. Segundo triángulo
                 indices.push_back(actualVert + segments + 2);
                 indices.push_back(actualVert + 1);
                 indices.push_back(actualVert + segments + 1);
@@ -151,9 +143,9 @@ namespace udit
 
     Ground::Ground()
     {
-        auto coordinates = generateCoordinates();
-        auto colors = generateColors();
-        auto indices = generateIndices();
+        auto coordinates = GenerateCoordinates();
+        auto colors      = GenerateColors();
+        auto indices     = GenerateIndices();
 
         numIndices = indices.size() * sizeof(GLubyte);
 
@@ -184,7 +176,7 @@ namespace udit
         glDeleteBuffers(3, vbo_ids);
     }
 
-    void Ground::render()
+    void Ground::Render()
     {
         glBindVertexArray(vao_id);
         glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);

@@ -1,3 +1,7 @@
+/**
+    @author - Ignacio Tapia Marfil
+*/
+
 #ifndef MESH_HEADER
 #define MESH_HEADER
 
@@ -5,37 +9,37 @@
     #include <glm/glm.hpp>
     #include <string>
     #include <vector>
-
-    class Mesh
+    namespace OpenGlTapia
     {
-    private:
-        GLuint vaoID;
-        GLuint vboIDs[3]; 
-        GLuint textureID;
-        size_t numberOfIndices;
 
-        // Nuevos miembros para almacenar los datos de la malla
-        std::vector<glm::vec3> vertices;
-        std::vector<glm::vec3> colors;
-        std::vector<GLshort> indices;
-        std::vector<glm:: vec2 > textCoords;
+        class Mesh
+        {
+        private:
+            GLuint vaoID;
+            GLuint vboIDs[3]; 
+            GLuint textureID;
+            size_t numberOfIndices;
 
+            std::vector<glm::vec3> vertices;
+            std::vector<glm::vec3> colors;
+            std::vector<GLshort> indices;
+            std::vector<glm:: vec2 > textCoords;
 
-    public:
+        public:
+            Mesh(const std::string& filePath);
+            ~Mesh();
 
-        Mesh(const std::string& filePath);
-        ~Mesh();
+            void Render(GLuint modelViewMatrixID, const glm::mat4& modelMatrix);
 
-        void render(GLuint modelViewMatrixID, const glm::mat4& modelMatrix);
+            // Métodos get
+            const std::vector<glm::vec3>& GetVertices() const { return vertices;}
+            const std::vector<glm::vec3>& GetColors()   const { return colors;}
+            const std::vector<GLshort>&   GetIndices()  const { return indices;}
 
-        // Métodos get
-        const std::vector<glm::vec3>& getVertices() const { return vertices; }
-        const std::vector<glm::vec3>& getColors() const { return colors; }
-        const std::vector<GLshort>& getIndices() const { return indices; }
-
-    private:
-        void loadFromFile(const std::string& filePath);
-        glm::vec3 randomColor();
-    };
+        private:
+            void LoadFromFile(const std::string& filePath);
+            glm::vec3 SetColor();
+        };
+    }
 
 #endif
